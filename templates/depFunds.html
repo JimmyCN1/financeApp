@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Deposit Funds
+{% endblock %}
+
+{% block main %}
+    <ul class="list-group">
+        <li class="list-group-item">Wallet size: {{ usd(balance) }}</li>
+    </ul><br>
+    <form action="/depFunds" method="post">
+        <div class="form-group">
+            <input autocomplete="off" class="form-control" name="funds" placeholder="Amount (USD)" type="number" min="1"/>
+        </div>
+        <button class="btn btn-primary" type="submit">Deposit</button>
+    </form><br>
+{% endblock %}

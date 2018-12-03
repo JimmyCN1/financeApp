@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <ul class="list-group">
+        <li class="list-group-item">Wallet Size: {{ usd(balance) }}</li>
+        <li class="list-group-item">Net Worth: {{ usd(net_worth) }}</li>
+    </ul><br><br>
+    <h2>Account Overview</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Stock</th>
+                <th scope="col">No. Shares Owned</th>
+                <th scope="col">Current Share Price</th>
+                <th scope="col">Total Value Owned</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in indexO %}
+            <tr>
+                <th scope="row">{{ overview[row]["symbol"] }}</th>
+                <td>{{ overview[row]["num_shares"] }}</td>
+                <td>{{ usd(quotes[row]) }}</td>
+                <td>{{ usd(overview[row]["num_shares"] * quotes[row]) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

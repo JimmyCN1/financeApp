@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Sell
+{% endblock %}
+
+{% block main %}
+    <ul class="list-group">
+        <li class="list-group-item">Wallet size: {{ usd(balance) }}</li>
+    </ul><br>
+    <form action="/sell" method="post">
+        <div class="form-group">
+            <label for="stocksOwned">Select stock to sell</label>
+            <select class="form-control" id="stocksOwned" name="symbol">
+                {% for row in indexO %}
+                <option value="{{ overview[row]["symbol"] }}">{{ overview[row]["symbol"] }} ---- No. Stock Owned: {{ overview[row]["num_shares"] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <input autocomplete="off" class="form-control" name="shares" placeholder="No. Stocks" type="number" min="1"/>
+        </div>
+        <button class="btn btn-primary" type="submit">Sell Stocks</button>
+    </form><br>
+    <h2>Sale History</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Symbol</th>
+                <th scope="col">Price</th>
+                <th scope="col">No. Shares Owned</th>
+                <th scope="col">Total Price</th>
+                <th scope="col">Transaction Type</th>
+                <th scope="col">Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in index %}
+            <tr>
+                <th scope="row">{{ history[row]["date"] }}</th>
+                <td>{{ history[row]["time"] }}</td>
+                <td>{{ history[row]["symbol"] }}</td>
+                <td>{{ usd(history[row]["stock_price"]) }}</td>
+                <td>{{ history[row]["num_shares"] }}</td>
+                <td>{{ usd(history[row]["total_price"]) }}</td>
+                <td>{{ history[row]["transaction_type"] }}</td>
+                <td>{{ usd(history[row]["balance"]) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+    <ul class="list-group">
+        <li class="list-group-item">Wallet size: {{ usd(balance) }}</li>
+    </ul><br><br>
+    <h2>Transaction History</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Symbol</th>
+                <th scope="col">Price</th>
+                <th scope="col">No. Shares</th>
+                <th scope="col">Total Price</th>
+                <th scope="col">Transaction Type</th>
+                <th scope="col">Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in index %}
+            <tr>
+                <th scope="row">{{ history[row]["date"] }}</th>
+                <td>{{ history[row]["time"] }}</td>
+                <td>{{ history[row]["symbol"] }}</td>
+                <td>{{ usd(history[row]["stock_price"]) }}</td>
+                <td>{{ history[row]["num_shares"] }}</td>
+                <td>{{ usd(history[row]["total_price"]) }}</td>
+                <td>{{ history[row]["transaction_type"] }}</td>
+                <td>{{ usd(history[row]["balance"]) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
