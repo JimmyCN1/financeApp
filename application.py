@@ -12,6 +12,34 @@ from helpers import apology, login_required, lookup, usd
 
 # Configure application
 app = Flask(__name__)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URI"]
+db = SQLAlchemy(app)
+
+class User(db.users):
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String(80), nullable = False)
+    hash = db.Column(db.String(100), nullable = False)
+    cash = db.Column(db.numeric, ColumnDefault(10000), nullable = False)
+
+    def __init__(self, name):
+        self.name = name
+
+class User(db.transactions):
+    transaction_id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, ForeignKey("users.id"), nullable = False)
+    date = db.Column(db.DATE, nullable = False)
+    time = db.Column(db.TIME, nullable = False)
+    symbol = db.Column(db.String(10), nullable = False)
+    stock_price = db.Column(db.numberic, nullable = False)
+    num_shares = db.Column(db.numeric, nullable = False)
+    total_price = db.Column(db.numeric, nullable = False)
+    transaction_type = db.Column(db.String(80), nullable = False)
+    balance = db.Column(db.numeric, nullable = False)
+
+    def __init__(self, name):
+        self.name = name
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
