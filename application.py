@@ -1,10 +1,9 @@
 import os
-import sqlite3
 
-from cs50 import SQL, eprint
 from datetime import date, datetime, time
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -33,13 +32,6 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///finance.db")
-
-# initialise sqlite3
-conn = sqlite3.connect('finance.db')
-c = conn.cursor()
 
 
 @app.route("/")
