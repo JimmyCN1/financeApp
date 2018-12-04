@@ -1,10 +1,10 @@
 import os
-import sqlalchemy
 
 from datetime import date, datetime, time
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
+# from sqlalchemy import ColumnDefault, ForeignKey
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -18,18 +18,18 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URI"]
 db = SQLAlchemy(app)
 
-class users(db.Model):
+class Users(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(80), nullable = False)
     hash = db.Column(db.String(100), nullable = False)
     cash = db.Column(db.numeric, ColumnDefault(10000), nullable = False)
 
-    def __init__(self, name):
-        self.name = name
+    def __repr__(self):
+        return "<Users %r>" % self.username
 
-class transactions(db.Model):
+class Transactions(db.Model):
     transaction_id = db.Column(db.Integer, primary_key = True)
-    id = db.Column(db.Integer, ForeignKey("users.id"), nullable = False)
+    id = db.Column(db.Integer, ForeignKey("Users.id"), nullable = False)
     date = db.Column(db.DATE, nullable = False)
     time = db.Column(db.TIME, nullable = False)
     symbol = db.Column(db.String(10), nullable = False)
@@ -39,8 +39,8 @@ class transactions(db.Model):
     transaction_type = db.Column(db.String(80), nullable = False)
     balance = db.Column(db.numeric, nullable = False)
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
+        return "<Transactions %r>" % self.transaction_id
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -322,8 +322,13 @@ def register():
             return apology("username already exists", 400)
 
         # Insert new user into database
-        newEntry = db.execute("INSERT INTO users (username, hash) VALUES (:username, :hashh)",
-                    username=request.form.get("username"), hashh=generate_password_hash(request.form.get("password")))
+        # newEntry = db.execute("INSERT INTO users (username, hash) VALUES (:username, :hash)",
+        #             username=request.form.get("username"), hashh=generate_password_hash(request.form.get("password")))
+        username = request.form.get("username")
+        hash=generate_password_hash(request.form.get("password"))
+        newUser = Users(username = username, hash = hash)
+        db.session.add(newUser)
+        db.session.commit()
 
         # if insertion fails
         if not newEntry:
