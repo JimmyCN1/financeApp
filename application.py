@@ -17,7 +17,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URI"]
 db = SQLAlchemy(app)
 
-class User(db.users):
+class users(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(80), nullable = False)
     hash = db.Column(db.String(100), nullable = False)
@@ -26,7 +26,7 @@ class User(db.users):
     def __init__(self, name):
         self.name = name
 
-class User(db.transactions):
+class transactions(db.Model):
     transaction_id = db.Column(db.Integer, primary_key = True)
     id = db.Column(db.Integer, ForeignKey("users.id"), nullable = False)
     date = db.Column(db.DATE, nullable = False)
