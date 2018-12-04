@@ -4,7 +4,7 @@ from datetime import date, datetime, time
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
-# from sqlalchemy import ColumnDefault, ForeignKey
+from sqlalchemy import func, select
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -25,7 +25,7 @@ class Users(db.Model):
     cash = db.Column(db.numeric, ColumnDefault(10000), nullable = False)
 
     def __repr__(self):
-        return "<Users %r>" % self.username
+        return "<User %r>" % self.username
 
 class Transactions(db.Model):
     transaction_id = db.Column(db.Integer, primary_key = True)
@@ -40,7 +40,7 @@ class Transactions(db.Model):
     balance = db.Column(db.numeric, nullable = False)
 
     def __init__(self):
-        return "<Transactions %r>" % self.transaction_id
+        return "<Transaction %r>" % self.transaction_id
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -70,12 +70,21 @@ def index():
 
     # load current wallet size
     id = session["user_id"][0]["id"]
-    wallet = db.execute("SELECT cash FROM users WHERE id = :id", id=id)
-    balance = wallet[0]["cash"]
+    # wallet = db.execute("SELECT cash FROM users WHERE id = :id", id=id)
+    # balance = wallet[0]["cash"]
+    wallet = Users.query.filter_by(id = id).first() #SQLAlchemy
+    balance = wallet.cash
 
     # load user's overview
-    overview = db.execute("SELECT id, symbol, SUM(num_shares) AS num_shares, SUM(total_price) AS total_price FROM transactions WHERE id = :id GROUP BY id, symbol",
-        id=id)
+    # overview = db.execute("SELECT id, symbol, SUM(num_shares) AS num_shares, SUM(total_price) AS total_price FROM transactions WHERE id = :id GROUP BY id, symbol",
+    #     id=id)
+    # overview = Transactions.query.with_entities(Transactions.id, Transactions.symbol). #SQLAlchemy
+
+    #
+    #
+    #
+    #
+    #
 
     # obtain length of history for user
     indexO = []
@@ -105,14 +114,17 @@ def buy():
     id = session["user_id"][0]["id"]
 
     # load current wallet size
-    wallet = db.execute("SELECT cash FROM users WHERE id = :id", id=id)
-    balance = wallet[0]["cash"]
+    # wallet = db.execute("SELECT cash FROM users WHERE id = :id", id=id)
+    # balance = wallet[0]["cash"]
+    wallet = Users.query.filter_by(id = id).first() #SQLAlchemy
+    balance = wallet.cash
 
     # obtain users transaction history
     history = db.execute("""
         SELECT date, time, symbol, stock_price, num_shares, total_price, transaction_type, balance
         FROM transactions
         WHERE id=:id AND transaction_type='Purchase'""", id=id)
+    # history = Transactions.query.
 
     # obtain length of history for user
     index = []
@@ -170,14 +182,29 @@ def buy():
             time = datetime.now().time().isoformat()
 
             # update transactions table
-            sql = ("""
-                INSERT INTO transactions (id, date, time, symbol, stock_price, num_shares, total_price, transaction_type, balance)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""")
-            values = (id, today, time, symbol, quote["price"], int(numShares), totalPrice, transactionType, balance)
+            # sql = ("""
+            #     INSERT INTO transactions (id, date, time, symbol, stock_price, num_shares, total_price, transaction_type, balance)
+            #     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""")
+            # values = (id, today, time, symbol, quote["price"], int(numShares), totalPrice, transactionType, balance)
+            # c.execute(sql, values)
+            # conn.commit()
+            # # c.close()
 
-            c.execute(sql, values)
-            conn.commit()
-            # c.close()
+            new_transaction = Transactions(
+                id = id,
+                today = today,
+                time = time,
+                symbol = symbol,
+                stock_price = quote["price"],
+                num_shares = int(num_shares),
+                total_price = totalPrice,
+                transaction_type = transactionType,
+                balance = balance
+            )
+            db.session.add(new_transaction)
+            db.session.commit() # SQLAlchemy
+            
+            # update new user balance in user table
             db.execute("UPDATE users SET cash = :balance WHERE id = :id", balance=balance, id=id)
 
 
